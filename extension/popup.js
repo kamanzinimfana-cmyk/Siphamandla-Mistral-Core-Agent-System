@@ -2,6 +2,9 @@
 const frame = document.getElementById('app-frame');
 
 window.addEventListener('message', async (event) => {
+  // Ensure the message is from our iframe
+  if (event.source !== frame.contentWindow) return;
+
   // Handle messages from the React app inside the iframe
   const { action, data, id } = event.data;
 
