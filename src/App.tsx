@@ -48,8 +48,22 @@ export default function App() {
   
   const [config, setConfig] = useState<Config>(() => {
     const saved = localStorage.getItem('mistral_agent_config');
-    return saved ? JSON.parse(saved) : { apiKey: '', blueAgentId: '', redAgentId: '' };
+    const defaults = {
+      apiKey: (process.env as any).MISTRAL_API_KEY || '',
+      blueAgentId: (process.env as any).BLUE_AGENT_ID || '',
+      redAgentId: (process.env as any).RED_AGENT_ID || ''
+    };
+    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
   });
+
+  const [isExtensionConnected, setIsExtensionConnected] = useState(false);
+
+  useEffect(() => {
+    // Check if we are running inside the extension popup
+    if (window.parent !== window) {
+      setIsExtensionConnected(true);
+    }
+  }, []);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +128,10 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-sm font-bold text-white leading-none">Mistral Agent</h1>
-              <p className="text-[10px] text-slate-500 font-mono mt-0.5 uppercase tracking-wider">Floating UI</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Floating UI</p>
+                <div className={`h-1.5 w-1.5 rounded-full ${isExtensionConnected ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]'}`} title={isExtensionConnected ? "Extension Connected" : "Running in Web Mode (Mock Browser)"} />
+              </div>
             </div>
           </div>
           
@@ -211,6 +228,21 @@ export default function App() {
                 <p className="text-[10px] text-slate-600 text-center leading-relaxed">
                   Keys are stored locally in your browser's storage and never sent to our servers.
                 </p>
+
+                <div className="pt-4 border-t border-slate-900">
+                  <h3 className="text-[10px] font-bold text-slate-500 uppercase mb-2">Extension Setup</h3>
+                  <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
+                    <p className="text-[10px] text-slate-400">
+                      1. Open <code className="text-blue-400">chrome://extensions</code>
+                    </p>
+                    <p className="text-[10px] text-slate-400">
+                      2. Enable <span className="text-slate-200">Developer Mode</span>
+                    </p>
+                    <p className="text-[10px] text-slate-400">
+                      3. Click <span className="text-slate-200">Load Unpacked</span> and select the <code className="text-blue-400">extension</code> folder.
+                    </p>
+                  </div>
+                </div>
               </div>
             </motion.div>
           ) : !isMinimized ? (
