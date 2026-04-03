@@ -1,0 +1,5 @@
+{
+  "name": "Remix: Mistral Core Agent System",
+  "description": "A builder-ready implementation of a dual-agent (Blue/Red) system using Mistral AI for browser automation tasks.",
+  "requestFramePermissions": []
+}
